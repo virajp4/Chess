@@ -1,2 +1,2 @@
 # Chess
- A Chess game, made with pygame.
+ A PvP based Chess game, made with pygame.

@@ -7,6 +7,7 @@ class Game:
         pass
     
     def show_bg(self, surface):
+        
         for row in range(ROWS):
             for col in range(COLS):
                 if (row + col) % 2 == 0:

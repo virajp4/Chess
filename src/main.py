@@ -2,7 +2,7 @@ import pygame
 import sys
 
 from const import *
-from game import *
+from game import Game
 
 class Main:
     
@@ -14,16 +14,19 @@ class Main:
     
     def mainloop(self):
         
+        screen = self.screen
+        game = self.game
+        
         while True:
             
-            self.game.show_bg()
+            game.show_bg(screen)
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
-                
+               
             pygame.display.update()
     
 main = Main()

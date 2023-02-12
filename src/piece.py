@@ -34,7 +34,7 @@ class Knight(Piece):
 class Bishop(Piece):
     
     def __init__(self, color):
-        super().__init__('knight', color, 3.001)
+        super().__init__('bishop', color, 3.001)
         
 class Rook(Piece):
     

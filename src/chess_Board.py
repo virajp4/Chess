@@ -3,6 +3,7 @@ import pygame
 from const import *
 from chess_Square import *
 from chess_Pieces import *
+from chess_Dragger import *
 
 class chess_Board:
     
@@ -12,9 +13,9 @@ class chess_Board:
         self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(COLS)]
 
         self.display_bg(self.screen) # DISPLAY CHESS BOARD
+        self.dragger = chess_Dragger()
         self.create_empty_squares() # CREATE EMPTY SQUARES
         self.create_pieces() # CREATE CHESS BOARD PIECES
-        self.display_pieces(self.screen) # DISPLAY CHESS BOARD PIECES
 
     def create_empty_squares(self): # FUNC TO CREATE SQUARES AS OBJECT OF CH_SQ CLASS TO STORE VALUES
         
@@ -61,7 +62,7 @@ class chess_Board:
                 rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(screen, color, rect)
 
-    def display_pieces(self, screen): # FUNC TO DISPLAY CHESS PIECES
+    def display_pieces(self, screen, dragging_piece=None): # FUNC TO DISPLAY CHESS PIECES
         
         for row in range(ROWS):
             for col in range(COLS):
@@ -69,7 +70,8 @@ class chess_Board:
                     
                     piece =  self.squares[row][col].piece
                     
-                    if piece is not self.dragger.piece:
+                    if piece is not dragging_piece:
+                        piece.set_texture(size=80)
                         img = pygame.image.load(piece.texture)
                         img_center = col * SQSIZE + SQSIZE // 2, row * SQSIZE + SQSIZE // 2
                         piece.texture_rect = img.get_rect(center=img_center)

@@ -5,6 +5,7 @@ from const import *
 from chess_Pieces import *
 from chess_Square import *
 from chess_Board import *
+from chess_Dragger import *
 
 # THIS FILE IS THE MAIN FILE WHICH RUNS THE PROGRAM
 
@@ -18,13 +19,39 @@ class Main:
         
     def mainloop(self):
         
+        game = chess_Board(self.screen)
+        dragger = chess_Dragger()
+        
         while True:
             
-            game = chess_Board(self.screen)
+            game.display_bg(self.screen) # DISPLAY CHESS BOARD
+            game.display_pieces(self.screen, dragger.piece) # DISPLAY CHESS BOARD PIECES
+            
+            if dragger.dragging:
+                dragger.update_icon(self.screen)
             
             for event in pygame.event.get():
                 
-                if event.type == pygame.QUIT: # EXIT GAME
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    
+                    dragger.update_mouse_pos(event.pos)
+                    clicked_row = dragger.mouseY // SQSIZE
+                    clicked_col = dragger.mouseX // SQSIZE
+
+                    if game.squares[clicked_row][clicked_col].has_piece():
+                        dragging_piece = game.squares[clicked_row][clicked_col].piece
+                        dragger.save_initial(event.pos)
+                        dragger.drag_piece(dragging_piece)
+                    
+                elif event.type == pygame.MOUSEMOTION:
+                    if dragger.dragging:
+                        dragger.update_mouse_pos(event.pos)
+                        dragger.update_icon(self.screen)
+                
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    dragger.undrag_piece(dragging_piece)
+                    
+                elif event.type == pygame.QUIT: # EXIT GAME
                     pygame.quit()
                     sys.exit()
 

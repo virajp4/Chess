@@ -81,6 +81,14 @@ class chess_Board:
                         
     def calc_moves(self, piece, row, col): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
         
+        def create_moves(row,col,possible_move_row,possible_move_col): # CREATE VALID MOVES FOR A PIECE
+            
+            initial = chess_Square(row,col) # INITIAL POS
+            final = chess_Square(possible_move_row,possible_move_col) # FINAL POS
+            
+            move = chess_Move(initial,final) # CREATE OBJ OF MOVE CLASS
+            piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
+        
         def knight_moves(): # CALC VALID MOVES FOR KNIGHT
             possible_moves = [
                 (row-2, col+1),
@@ -94,16 +102,12 @@ class chess_Board:
             ]
             
             for pos_move in possible_moves:
-                move_row, move_col = pos_move
+                possible_move_row, possible_move_col = pos_move
                 
-                if chess_Square.in_range(move_row,move_col): # CHECK IF SQUARE IS IN BOARD
-                    if self.squares[move_row][move_col].isempty_or_enemy(piece.color): # CHECK IF SQ IS EMPTY OR ENEMY
+                if chess_Square.in_range(possible_move_row,possible_move_col): # CHECK IF SQUARE IS IN BOARD
+                    if self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color): # CHECK IF SQ IS EMPTY OR ENEMY
                         
-                        initial = chess_Square(row,col) # INITIAL POS
-                        final = chess_Square(move_row,move_col) # FINAL POS
-                        
-                        move = chess_Move(initial,final) # CREATE OBJ OF MOVE CLASS
-                        piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
+                        create_moves(row,col,possible_move_row,possible_move_col)
         
         def pawn_moves(): # CALC VALID MOVES FOR PAWN
             
@@ -117,11 +121,7 @@ class chess_Board:
                 
                 if chess_Square.in_range(possible_move_row) and self.squares[possible_move_row][col].isempty(): # CHECK IF MOVES ARE VALID   
                     
-                    initial = chess_Square(row,col)
-                    final = chess_Square(possible_move_row,col)
-                    
-                    move = chess_Move(initial, final)
-                    piece.add_move(move)
+                    create_moves(row,col,possible_move_row,col)
                     
                 else: break
                 
@@ -132,24 +132,83 @@ class chess_Board:
             for possible_move_col in possible_move_cols:
                 if chess_Square.in_range(possible_move_col) and self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
                     
-                    initial = chess_Square(row, col)
-                    final = chess_Square(possible_move_row, possible_move_col)
+                    create_moves(row,col,possible_move_row,possible_move_col)
                     
-                    move = chess_Move(initial, final)
-                    piece.add_move(move)
+        def straightline_moves(increment):
+            
+            if self.squares[row][col].piece.name == 'king':
+                for inc in increment:
+                    row_inc, col_inc = inc
+                    possible_move_row = row + row_inc
+                    possible_move_col = col + col_inc
                     
+                    if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
+                        create_moves(row, col, possible_move_row, possible_move_col)
+            
+            else:
+                for inc in increment:
+                    row_inc, col_inc = inc
+                    possible_move_row = row + row_inc
+                    possible_move_col = col + col_inc
+                    
+                    while chess_Square.in_range(possible_move_row,possible_move_col):
+                        
+                        if self.squares[possible_move_row][possible_move_col].isempty():
+                            create_moves(row, col, possible_move_row, possible_move_col)
+                            possible_move_row += row_inc
+                            possible_move_col += col_inc
+                        
+                        elif self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
+                            create_moves(row, col, possible_move_row, possible_move_col)
+                            break
+                        
+                        else: break
         
-        if piece.name == "pawn": pawn_moves()
+        if piece.name == "pawn": # PAWN MOVES
+            pawn_moves()
         
-        elif piece.name == 'knight': knight_moves()
+        elif piece.name == 'knight': # KNIGHT MOVES
+            knight_moves()
         
-        elif piece.name == "bishop": pass
+        elif piece.name == "bishop": # BISHOP MOVES
+            straightline_moves([
+                (-1, 1),
+                (-1, -1),
+                (1, 1),
+                (1, -1)
+            ])
         
-        elif piece.name == "rook": pass
+        elif piece.name == "rook": # ROOK MOVES
+            straightline_moves([
+                (-1, 0),
+                (0, -1),
+                (1, 0),
+                (0, 1)
+            ])
         
-        elif piece.name == "queen": pass
+        elif piece.name == "queen": # QUEEN MOVES
+            straightline_moves([
+                (-1, 0),
+                (0, -1),
+                (1, 0),
+                (0, 1),
+                (-1, 1),
+                (-1, -1),
+                (1, 1),
+                (1, -1)
+            ])
         
-        elif piece.name == "king": pass
+        elif piece.name == "king":
+            straightline_moves([
+                (-1, 0),
+                (0, -1),
+                (1, 0),
+                (0, 1),
+                (-1, 1),
+                (-1, -1),
+                (1, 1),
+                (1, -1)
+            ])
 
     def display_moves(self, screen, dragger, dragging_piece=None): #FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
         

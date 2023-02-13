@@ -23,7 +23,10 @@ class chess_Square:
         return self.has_piece() and self.piece.color != color
     
     def isempty_or_enemy(self, color): # FUNC TO CHECK IF SQUARE IS EMPTY OR RIVAL
-        return self.isempty() or self.has_rival_piece(color)
+        return self.isempty() or self.has_enemy_piece(color)
+    
+    def is_first_enemy(self, row, col, row_inc=None, col_inc=None, color=None): # FUNC TO CHECK IF SQ IS THE FIRST ENEMY SQUARE IN LINE
+        return chess_Square[row - row_inc][col - col_inc].isempty() and chess_Square[row][col].has_enemy_piece(color)
     
     @staticmethod
     def in_range(*args): # FUNC TO CALC MOVES INSIDE THE BOARD

@@ -20,7 +20,7 @@ class Piece:
         
         self.set_texture()
         
-    def set_texture(self, size=80):
+    def set_texture(self, size=80): # FUNC TO JOIN IMAGE WITH CORRESPONDING PIECE
         self.texture = os.path.join(f'assets/images/imgs-{size}px/{self.color}_{self.name}.png')
         
 class Pawn(Piece):

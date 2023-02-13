@@ -4,6 +4,8 @@ from const import *
 from chess_Square import *
 from chess_Board import *
 
+# THIS FILE CONTAINS THE CLASS RESPONSIBLE FOR DRAGGING PIECES
+
 class chess_Dragger():
     
     def __init__(self):
@@ -14,7 +16,7 @@ class chess_Dragger():
         self.mouseY = 0
         self.initial_row, self.initial_col = 0, 0
     
-    def update_icon(self, surface):
+    def update_icon(self, surface): # FUNC TO UPDATE DRAGGING PIECE LOCATION ALONG WITH MOUSE POS
         
         self.piece.set_texture(size=128)
         
@@ -26,18 +28,18 @@ class chess_Dragger():
         
         surface.blit(img, self.piece.texture_rect)
                
-    def update_mouse_pos(self, pos):
+    def update_mouse_pos(self, pos): # FUNC TO UPDATE MOUSE POS
         self.mouseX, self.mouseY = pos
         
-    def save_initial(self, pos):
+    def save_initial(self, pos): # FUNC TO SAVE INITIAL POSITION OF PIECE BEFORE DRAGGING
         self.initial_row = pos[1] // SQSIZE
         self.initial_col = pos[0] // SQSIZE
         
-    def drag_piece(self, piece):
+    def drag_piece(self, piece): # FUNC TO DRAG PIECE
         self.piece = piece
         self.dragging = True
         
-    def undrag_piece(self, piece):
+    def undrag_piece(self, piece): # FUNC TO UNDRAG PIECE
         self.piece = None
         self.dragging = False
         

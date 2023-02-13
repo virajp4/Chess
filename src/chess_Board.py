@@ -5,6 +5,8 @@ from chess_Square import *
 from chess_Pieces import *
 from chess_Dragger import *
 
+# THIS FILE CONTAINS THE CLASS THAT DEALS WITH EVERYTHING ON BOARD
+
 class chess_Board:
     
     def __init__(self, screen):

@@ -32,9 +32,10 @@ class Main:
             
             for event in pygame.event.get():
                 
-                if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.type == pygame.MOUSEBUTTONDOWN: # WHEN PIECE IS CLICKED ON
                     
                     dragger.update_mouse_pos(event.pos)
+                    
                     clicked_row = dragger.mouseY // SQSIZE
                     clicked_col = dragger.mouseX // SQSIZE
 
@@ -43,12 +44,14 @@ class Main:
                         dragger.save_initial(event.pos)
                         dragger.drag_piece(dragging_piece)
                     
-                elif event.type == pygame.MOUSEMOTION:
+                elif event.type == pygame.MOUSEMOTION: # WHEN PIECE IS DRAGGED
                     if dragger.dragging:
                         dragger.update_mouse_pos(event.pos)
+                        game.display_bg(self.screen)
+                        game.display_pieces(self.screen, dragging_piece)
                         dragger.update_icon(self.screen)
                 
-                elif event.type == pygame.MOUSEBUTTONUP:
+                elif event.type == pygame.MOUSEBUTTONUP: # WHEN PIECE IS RELEASED
                     dragger.undrag_piece(dragging_piece)
                     
                 elif event.type == pygame.QUIT: # EXIT GAME

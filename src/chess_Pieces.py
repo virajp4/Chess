@@ -7,6 +7,7 @@ class Piece:
     def __init__(self, name, color, value, texture=None, texture_rect=None):
         
         value_sign = 1 if color == 'white' else -1
+        self.dir = 1 if color == 'black' else -1
         
         self.name = name
         self.color = color
@@ -23,10 +24,12 @@ class Piece:
     def set_texture(self, size=80): # FUNC TO JOIN IMAGE WITH CORRESPONDING PIECE
         self.texture = os.path.join(f'assets/images/imgs-{size}px/{self.color}_{self.name}.png')
         
+    def add_move(self, move): # FUNC TO STORE VALID MOVES OF A PIECE
+        self.moves.append(move)
+        
 class Pawn(Piece):
     
     def __init__(self, color):
-        self.dir = -1 if color == 'white' else 1
         super().__init__('pawn', color, 1.0)
 
 class Knight(Piece):

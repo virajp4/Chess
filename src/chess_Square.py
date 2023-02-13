@@ -1,6 +1,6 @@
 from const import *
 
-# THIS FILE CONTAINS THE CLASS WHICH STORES EACH INDIVIDUAL SQUARE
+# THIS FILE CONTAINS THE CLASSES WHICH STORES EACH INDIVIDUAL SQUARE AND PIECE MOVES
 
 class chess_Square:
     
@@ -19,10 +19,10 @@ class chess_Square:
     def has_team_piece(self, color): # FUNC TO CHECK IF SQUARE HAS TEAM PIECE
         return self.has_piece() and self.piece.color == color
     
-    def has_rival_piece(self, color): # FUNC TO CHECK IF SQUARE HAS RIVAL
+    def has_enemy_piece(self, color): # FUNC TO CHECK IF SQUARE HAS RIVAL
         return self.has_piece() and self.piece.color != color
     
-    def isempty_or_rival(self, color): # FUNC TO CHECK IF SQUARE IS EMPTY OR RIVAL
+    def isempty_or_enemy(self, color): # FUNC TO CHECK IF SQUARE IS EMPTY OR RIVAL
         return self.isempty() or self.has_rival_piece(color)
     
     @staticmethod
@@ -32,4 +32,9 @@ class chess_Square:
                 return False
         return True
     
+class chess_Move:
     
+    def __init__(self, initial, final) -> None:
+        self.initial = initial
+        self.final = final
+        

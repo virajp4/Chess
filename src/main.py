@@ -8,6 +8,8 @@ from chess_Board import *
 from chess_Dragger import *
 
 # THIS FILE IS THE MAIN FILE WHICH RUNS THE PROGRAM
+## TO DO :- PAWN PROMOTION, EN PASSANT
+
 
 class Main:
     
@@ -24,11 +26,14 @@ class Main:
         
         while True:
             
+            
             game.display_bg(self.screen) # DISPLAY CHESS BOARD
+            game.display_moves(self.screen, dragger, dragger.piece) # DISPLAY VALID MOVES
             game.display_pieces(self.screen, dragger.piece) # DISPLAY CHESS BOARD PIECES
             
             if dragger.dragging:
-                dragger.update_icon(self.screen)
+                dragger.update_icon(self.screen) # CHANGE SIZE OF DRAGGING PIECE
+                
             
             for event in pygame.event.get():
                 
@@ -40,14 +45,28 @@ class Main:
                     clicked_col = dragger.mouseX // SQSIZE
 
                     if game.squares[clicked_row][clicked_col].has_piece():
+                        
                         dragging_piece = game.squares[clicked_row][clicked_col].piece
+                        
+                        # CALC VALID MOVES AND DRAG
+                        game.calc_moves(dragging_piece, clicked_row, clicked_col)
                         dragger.save_initial(event.pos)
                         dragger.drag_piece(dragging_piece)
+                        
+                        # DISPLAY
+                        game.display_bg(self.screen)
+                        game.display_moves(self.screen, dragger, dragger.piece)
+                        game.display_pieces(self.screen, dragging_piece)
                     
                 elif event.type == pygame.MOUSEMOTION: # WHEN PIECE IS DRAGGED
+                    
                     if dragger.dragging:
+                        
                         dragger.update_mouse_pos(event.pos)
+                        
+                        # DISPLAY
                         game.display_bg(self.screen)
+                        game.display_moves(self.screen, dragger, dragger.piece)
                         game.display_pieces(self.screen, dragging_piece)
                         dragger.update_icon(self.screen)
                 

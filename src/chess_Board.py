@@ -15,6 +15,7 @@ class chess_Board:
         self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(COLS)]
 
         self.display_bg(self.screen) # DISPLAY CHESS BOARD
+        self.last_move = None
         self.dragger = chess_Dragger()
         self.create_empty_squares() # CREATE EMPTY SQUARES
         self.create_pieces() # CREATE CHESS BOARD PIECES
@@ -87,6 +88,7 @@ class chess_Board:
             final = chess_Square(possible_move_row,possible_move_col) # FINAL POS
             
             move = chess_Move(initial,final) # CREATE OBJ OF MOVE CLASS
+            move.is_red = True
             piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
         
         def knight_moves(): # CALC VALID MOVES FOR KNIGHT
@@ -133,36 +135,35 @@ class chess_Board:
                 if chess_Square.in_range(possible_move_col) and self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
                     
                     create_moves(row,col,possible_move_row,possible_move_col)
-                    
-        def straightline_moves(increment):
-            
-            if self.squares[row][col].piece.name == 'king':
-                for inc in increment:
+              
+        def king_moves(increment):
+            for inc in increment:
                     row_inc, col_inc = inc
                     possible_move_row = row + row_inc
                     possible_move_col = col + col_inc
                     
                     if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
                         create_moves(row, col, possible_move_row, possible_move_col)
+              
+        def straightline_moves(increment):
             
-            else:
-                for inc in increment:
-                    row_inc, col_inc = inc
-                    possible_move_row = row + row_inc
-                    possible_move_col = col + col_inc
+            for inc in increment:
+                row_inc, col_inc = inc
+                possible_move_row = row + row_inc
+                possible_move_col = col + col_inc
+                
+                while chess_Square.in_range(possible_move_row,possible_move_col):
                     
-                    while chess_Square.in_range(possible_move_row,possible_move_col):
-                        
-                        if self.squares[possible_move_row][possible_move_col].isempty():
-                            create_moves(row, col, possible_move_row, possible_move_col)
-                            possible_move_row += row_inc
-                            possible_move_col += col_inc
-                        
-                        elif self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
-                            create_moves(row, col, possible_move_row, possible_move_col)
-                            break
-                        
-                        else: break
+                    if self.squares[possible_move_row][possible_move_col].isempty():
+                        create_moves(row, col, possible_move_row, possible_move_col)
+                        possible_move_row += row_inc
+                        possible_move_col += col_inc
+                    
+                    elif self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
+                        create_moves(row, col, possible_move_row, possible_move_col)
+                        break
+                    
+                    else: break
         
         if piece.name == "pawn": # PAWN MOVES
             pawn_moves()
@@ -199,7 +200,7 @@ class chess_Board:
             ])
         
         elif piece.name == "king":
-            straightline_moves([
+            king_moves([
                 (-1, 0),
                 (0, -1),
                 (1, 0),
@@ -221,3 +222,15 @@ class chess_Board:
                 rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
                 
                 pygame.draw.rect(screen, color, rect)
+
+    def move_piece(self, piece, move): # FUNC TO MOVE PIECE
+                
+        initial = move.initial
+        final = move.final
+        
+        self.squares[initial.row][initial.col].piece = None
+        self.squares[final.row][final.col].piece = piece
+        
+        piece.moved = True
+        piece.clear_moves()
+        self.last_move = move

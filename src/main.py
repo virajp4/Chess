@@ -71,6 +71,25 @@ class Main:
                         dragger.update_icon(self.screen)
                 
                 elif event.type == pygame.MOUSEBUTTONUP: # WHEN PIECE IS RELEASED
+                    
+                    if dragger.dragging:
+                        dragger.update_mouse_pos(event.pos)
+                        
+                        released_row = dragger.mouseY // SQSIZE 
+                        released_col = dragger.mouseX // SQSIZE
+                        
+                        initial = chess_Square(dragger.initial_row, dragger.initial_col)
+                        final = chess_Square(released_row,released_col)
+                        
+                        move = chess_Move(initial, final)
+                        
+                        #if move in dragging_piece.moves:
+                        if move in dragging_piece.moves:
+                            
+                            game.move_piece(dragging_piece, move)
+                            game.display_bg(self.screen)
+                            game.display_pieces(self.screen)
+                    
                     dragger.undrag_piece(dragging_piece)
                     
                 elif event.type == pygame.QUIT: # EXIT GAME

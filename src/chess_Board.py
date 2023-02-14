@@ -13,11 +13,13 @@ class chess_Board:
         
         self.screen = screen
         self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(COLS)]
-
-        self.display_bg(self.screen) # DISPLAY CHESS BOARD
         self.last_move = None
         self.next_player = 'white'
+        self.hovered_sqr = None
+        
         self.dragger = chess_Dragger()
+        
+        self.display_bg(self.screen) # DISPLAY CHESS BOARD
         self.create_empty_squares() # CREATE EMPTY SQUARES
         self.create_pieces() # CREATE CHESS BOARD PIECES
 
@@ -79,8 +81,8 @@ class chess_Board:
                         img = pygame.image.load(piece.texture)
                         img_center = col * SQSIZE + SQSIZE // 2, row * SQSIZE + SQSIZE // 2
                         piece.texture_rect = img.get_rect(center=img_center)
-                        screen.blit(img, piece.texture_rect)
-                        
+                        screen.blit(img, piece.texture_rect)   
+
     def calc_moves(self, piece, row, col): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
         
         def create_moves(row,col,possible_move_row,possible_move_col): # CREATE VALID MOVES FOR A PIECE
@@ -218,7 +220,7 @@ class chess_Board:
             
             for move in dragging_piece.moves:
                 
-                color = "#C86464" if (move.final.row + move.final.col) % 2 ==0 else "#C84646"
+                color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
                 
                 rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
                 
@@ -236,6 +238,33 @@ class chess_Board:
         piece.clear_moves()
         self.last_move = move
         
-    def next_turn(self):
+    def next_turn(self): # FUNC TO DECIDE NEXT PLAYER TURN
         self.next_player = 'white' if self.next_player == 'black' else 'black'
     
+    def display_last_move(self, screen): # FUNC TO DISPLAY LAST MOVE
+        
+        if self.last_move:
+            
+            initial = self.last_move.initial
+            final = self.last_move.final
+            
+            for pos in [initial, final]:
+                
+                color = (244,247,116) if (pos.row + pos.col) % 2 == 0 else (172,195,51)
+                
+                rect = (pos.col * SQSIZE, pos.row * SQSIZE, SQSIZE, SQSIZE)
+                
+                pygame.draw.rect(screen, color, rect)
+                
+    def display_hovered(self, screen):
+        
+        if self.hovered_sqr:
+            
+            color = (180,180,180)
+            
+            rect = (self.hovered_sqr.col * SQSIZE, self.hovered_sqr.row * SQSIZE, SQSIZE, SQSIZE)
+            
+            pygame.draw.rect(screen, color, rect, width=4)
+    
+    def set_hover(self, row, col):
+        self.hovered_sqr = self.squares[row][col]

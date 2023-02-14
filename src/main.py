@@ -8,7 +8,7 @@ from chess_Board import *
 from chess_Dragger import *
 
 # THIS FILE IS THE MAIN FILE WHICH RUNS THE PROGRAM
-## TO DO :- PAWN PROMOTION, EN PASSANT
+## TO DO :- CHECKS, CHECKMATE, CASTLING, PAWN PROMOTION, EN PASSANT, RESTART, AUDIO, THEME, CLARITY
 
 
 class Main:
@@ -26,15 +26,16 @@ class Main:
         
         while True:
             
-            
             game.display_bg(self.screen) # DISPLAY CHESS BOARD
+            game.display_last_move(self.screen) # DISPLAY PREVIOUS MOVE
             game.display_moves(self.screen, dragger, dragger.piece) # DISPLAY VALID MOVES
+            game.display_hovered(self.screen)
             game.display_pieces(self.screen, dragger.piece) # DISPLAY CHESS BOARD PIECES
+            
             
             if dragger.dragging:
                 dragger.update_icon(self.screen) # CHANGE SIZE OF DRAGGING PIECE
                 
-            
             for event in pygame.event.get():
                 
                 if event.type == pygame.MOUSEBUTTONDOWN: # WHEN PIECE IS CLICKED ON
@@ -57,10 +58,15 @@ class Main:
                             
                             # DISPLAY
                             game.display_bg(self.screen)
+                            game.display_last_move(self.screen)
                             game.display_moves(self.screen, dragger, dragger.piece)
                             game.display_pieces(self.screen, dragging_piece)
                             
                 elif event.type == pygame.MOUSEMOTION: # WHEN PIECE IS DRAGGED
+                    
+                    hovering_row = event.pos[1] // SQSIZE
+                    hovering_col = event.pos[0] // SQSIZE
+                    game.set_hover(hovering_row, hovering_col)
                     
                     if dragger.dragging:
                         
@@ -68,13 +74,16 @@ class Main:
                         
                         # DISPLAY
                         game.display_bg(self.screen)
+                        game.display_last_move(self.screen)
                         game.display_moves(self.screen, dragger, dragger.piece)
+                        game.display_hovered(self.screen)
                         game.display_pieces(self.screen, dragging_piece)
                         dragger.update_icon(self.screen)
                 
                 elif event.type == pygame.MOUSEBUTTONUP: # WHEN PIECE IS RELEASED
                     
                     if dragger.dragging:
+                        
                         dragger.update_mouse_pos(event.pos)
                         
                         released_row = dragger.mouseY // SQSIZE 
@@ -88,8 +97,11 @@ class Main:
                         if move in dragging_piece.moves: # CHECK IF MOVE TO BE DONE IS PRESENT IN VALID MOVES
                             
                             game.move_piece(dragging_piece, move)
+                            
                             game.display_bg(self.screen)
+                            game.display_last_move(self.screen)
                             game.display_pieces(self.screen)
+                            
                             game.next_turn()
                     
                     dragger.undrag_piece(dragging_piece)

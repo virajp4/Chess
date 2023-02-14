@@ -10,7 +10,7 @@ class chess_Square:
         self.col = col
         self.piece = piece
     
-    def __eq__(self, other):
+    def __eq__(self, other): # FUNC TO COMPARE 2 SQUARES
         return self.row == other.row and self.col == other.col
     
     def has_piece(self): # FUNC TO CHECK IF SQUARE HAS A PIECE
@@ -44,5 +44,5 @@ class chess_Move:
         self.initial = initial
         self.final = final
     
-    def __eq__(self, other):
+    def __eq__(self, other): # FUNC TO COMPARE 2 MOVES
         return self.initial == other.initial and self.final == other.final

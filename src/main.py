@@ -48,16 +48,18 @@ class Main:
                         
                         dragging_piece = game.squares[clicked_row][clicked_col].piece
                         
-                        # CALC VALID MOVES AND DRAG
-                        game.calc_moves(dragging_piece, clicked_row, clicked_col)
-                        dragger.save_initial(event.pos)
-                        dragger.drag_piece(dragging_piece)
+                        if dragging_piece.color == game.next_player:
                         
-                        # DISPLAY
-                        game.display_bg(self.screen)
-                        game.display_moves(self.screen, dragger, dragger.piece)
-                        game.display_pieces(self.screen, dragging_piece)
-                    
+                            # CALC VALID MOVES AND DRAG
+                            game.calc_moves(dragging_piece, clicked_row, clicked_col)
+                            dragger.save_initial(event.pos)
+                            dragger.drag_piece(dragging_piece)
+                            
+                            # DISPLAY
+                            game.display_bg(self.screen)
+                            game.display_moves(self.screen, dragger, dragger.piece)
+                            game.display_pieces(self.screen, dragging_piece)
+                            
                 elif event.type == pygame.MOUSEMOTION: # WHEN PIECE IS DRAGGED
                     
                     if dragger.dragging:
@@ -83,12 +85,12 @@ class Main:
                         
                         move = chess_Move(initial, final)
                         
-                        #if move in dragging_piece.moves:
-                        if move in dragging_piece.moves:
+                        if move in dragging_piece.moves: # CHECK IF MOVE TO BE DONE IS PRESENT IN VALID MOVES
                             
                             game.move_piece(dragging_piece, move)
                             game.display_bg(self.screen)
                             game.display_pieces(self.screen)
+                            game.next_turn()
                     
                     dragger.undrag_piece(dragging_piece)
                     

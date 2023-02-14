@@ -16,6 +16,7 @@ class chess_Board:
 
         self.display_bg(self.screen) # DISPLAY CHESS BOARD
         self.last_move = None
+        self.next_player = 'white'
         self.dragger = chess_Dragger()
         self.create_empty_squares() # CREATE EMPTY SQUARES
         self.create_pieces() # CREATE CHESS BOARD PIECES
@@ -234,3 +235,7 @@ class chess_Board:
         piece.moved = True
         piece.clear_moves()
         self.last_move = move
+        
+    def next_turn(self):
+        self.next_player = 'white' if self.next_player == 'black' else 'black'
+    

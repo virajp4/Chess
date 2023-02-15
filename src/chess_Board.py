@@ -147,7 +147,18 @@ class chess_Board:
                     
                     if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
                         create_moves(row, col, possible_move_row, possible_move_col)
-              
+                    
+                        
+        
+        def king_castle(piece, row, col, possible_move_row, possible_move_col):
+            
+            if row == 7 and col == 4 and not piece.moved:
+                if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
+                    create_moves(row, col, possible_move_row, possible_move_col+1)
+                    create_moves(row, col, possible_move_row, possible_move_col-1)
+            
+            
+                  
         def straightline_moves(increment):
             
             for inc in increment:
@@ -234,9 +245,11 @@ class chess_Board:
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
         
-        piece.moved = True
-        piece.clear_moves()
-        self.last_move = move
+        if initial != final:
+            piece.moved = True
+            piece.clear_moves()
+            self.last_move = move
+        else: piece.moved = False
         
     def next_turn(self): # FUNC TO DECIDE NEXT PLAYER TURN
         self.next_player = 'white' if self.next_player == 'black' else 'black'

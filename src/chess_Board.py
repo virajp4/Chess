@@ -147,18 +147,7 @@ class chess_Board:
                     
                     if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
                         create_moves(row, col, possible_move_row, possible_move_col)
-                    
-                        
-        
-        def king_castle(piece, row, col, possible_move_row, possible_move_col):
-            
-            if row == 7 and col == 4 and not piece.moved:
-                if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
-                    create_moves(row, col, possible_move_row, possible_move_col+1)
-                    create_moves(row, col, possible_move_row, possible_move_col-1)
-            
-            
-                  
+                          
         def straightline_moves(increment):
             
             for inc in increment:

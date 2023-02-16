@@ -274,7 +274,7 @@ class chess_Board:
             self.check_promotion(piece, final)
         
         if isinstance(piece, King): # FOR CASTLING AND CHANGING ROOK POSITION
-            if self.castling(initial,final):
+            if self.castling(initial,final): # and not testing: 
                 diff = final.col - initial.col
                 rook = piece.left_rook if (diff<0) else piece.right_rook
                 self.move_piece(rook, rook.moves[-1])

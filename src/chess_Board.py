@@ -85,7 +85,7 @@ class chess_Board:
 
     def calc_moves(self, piece, row, col): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
         
-        def create_moves(row,col,possible_move_row,possible_move_col): # CREATE VALID MOVES FOR A PIECE
+        def create_moves(row,col,possible_move_row,possible_move_col,piece): # CREATE VALID MOVES FOR A PIECE
             
             initial = chess_Square(row,col) # INITIAL POS
             final = chess_Square(possible_move_row,possible_move_col) # FINAL POS
@@ -112,7 +112,7 @@ class chess_Board:
                 if chess_Square.in_range(possible_move_row,possible_move_col): # CHECK IF SQUARE IS IN BOARD
                     if self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color): # CHECK IF SQ IS EMPTY OR ENEMY
                         
-                        create_moves(row,col,possible_move_row,possible_move_col)
+                        create_moves(row,col,possible_move_row,possible_move_col,piece)
         
         def pawn_moves(): # CALC VALID MOVES FOR PAWN
             
@@ -126,7 +126,7 @@ class chess_Board:
                 
                 if chess_Square.in_range(possible_move_row) and self.squares[possible_move_row][col].isempty(): # CHECK IF MOVES ARE VALID   
                     
-                    create_moves(row,col,possible_move_row,col)
+                    create_moves(row,col,possible_move_row,col,piece)
                     
                 else: break
                 
@@ -137,17 +137,45 @@ class chess_Board:
             for possible_move_col in possible_move_cols:
                 if chess_Square.in_range(possible_move_col) and self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
                     
-                    create_moves(row,col,possible_move_row,possible_move_col)
+                    create_moves(row,col,possible_move_row,possible_move_col,piece)
               
         def king_moves(increment):
-            for inc in increment:
+            
+            for inc in increment: # NORMAL KING MOVES
                     row_inc, col_inc = inc
                     possible_move_row = row + row_inc
                     possible_move_col = col + col_inc
                     
                     if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
-                        create_moves(row, col, possible_move_row, possible_move_col)
-                          
+                        create_moves(row, col, possible_move_row, possible_move_col,piece)
+                    
+            if not piece.moved: # CASTLING KING MOVES
+                
+                # SHORT CASTLE
+                right_rook = self.squares[row][7].piece
+                if isinstance(right_rook, Rook):
+                    if not right_rook.moved:
+                        for c in range(5,7):
+                            if self.squares[row][c].has_piece():
+                                break
+                            if c == 5:
+                                piece.right_rook = right_rook
+                                create_moves(row,7,row,5,right_rook)
+                                create_moves(row,col,row,6,piece)
+                                
+                # LONG CASTLE
+                left_rook = self.squares[row][0].piece
+                if isinstance(left_rook, Rook):
+                    if not left_rook.moved:
+                        for c in range(1,4):
+                            if self.squares[row][c].has_piece():
+                                break
+                            if c == 3:
+                                piece.left_rook = left_rook
+                                create_moves(row,0,row,3,left_rook)
+                                create_moves(row,col,row,2,piece)
+                                print("test")
+                           
         def straightline_moves(increment):
             
             for inc in increment:
@@ -158,12 +186,12 @@ class chess_Board:
                 while chess_Square.in_range(possible_move_row,possible_move_col):
                     
                     if self.squares[possible_move_row][possible_move_col].isempty():
-                        create_moves(row, col, possible_move_row, possible_move_col)
+                        create_moves(row, col, possible_move_row, possible_move_col,piece)
                         possible_move_row += row_inc
                         possible_move_col += col_inc
                     
                     elif self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
-                        create_moves(row, col, possible_move_row, possible_move_col)
+                        create_moves(row, col, possible_move_row, possible_move_col,piece)
                         break
                     
                     else: break
@@ -214,6 +242,9 @@ class chess_Board:
                 (1, -1)
             ])
 
+    def castling(self, initial, final):
+            return abs(initial.col - final.col) == 2
+    
     def display_moves(self, screen, dragger, dragging_piece=None): #FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
         
         if dragger.dragging:
@@ -233,6 +264,12 @@ class chess_Board:
         
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
+        
+        if isinstance(piece, King):
+            if self.castling(initial,final):
+                diff = final.col - initial.col
+                rook = piece.left_rook if (diff<0) else piece.right_rook
+                self.move_piece(rook, rook.moves[-1])
         
         if initial != final:
             piece.moved = True

@@ -27,7 +27,7 @@ class Piece:
     def add_move(self, move): # FUNC TO STORE VALID MOVES OF A PIECE
         self.moves.append(move)
     
-    def clear_moves(self):
+    def clear_moves(self): # CLEAR MOVES OF A PIECE
         self.moves = []
         
 class Pawn(Piece):

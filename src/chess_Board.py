@@ -13,6 +13,7 @@ class chess_Board:
         
         self.screen = screen
         self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(COLS)]
+        
         self.last_move = None
         self.next_player = 'white'
         self.hovered_sqr = None
@@ -139,7 +140,7 @@ class chess_Board:
                     
                     create_moves(row,col,possible_move_row,possible_move_col,piece)
               
-        def king_moves(increment):
+        def king_moves(increment): # CALC VALID KING MOVES
             
             for inc in increment: # NORMAL KING MOVES
                     row_inc, col_inc = inc
@@ -230,7 +231,7 @@ class chess_Board:
                 (1, -1)
             ])
         
-        elif piece.name == "king":
+        elif piece.name == "king": # KING MOVES
             king_moves([
                 (-1, 0),
                 (0, -1),
@@ -242,7 +243,7 @@ class chess_Board:
                 (1, -1)
             ])
 
-    def castling(self, initial, final):
+    def castling(self, initial, final): # CHECK IF CASTLING IS POSSIBLE
             return abs(initial.col - final.col) == 2
     
     def display_moves(self, screen, dragger, dragging_piece=None): #FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
@@ -265,7 +266,7 @@ class chess_Board:
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
         
-        if isinstance(piece, King):
+        if isinstance(piece, King): # FOR CASTLING AND CHANGING ROOK POSITION
             if self.castling(initial,final):
                 diff = final.col - initial.col
                 rook = piece.left_rook if (diff<0) else piece.right_rook
@@ -295,7 +296,7 @@ class chess_Board:
                 
                 pygame.draw.rect(screen, color, rect)
                 
-    def display_hovered(self, screen):
+    def display_hovered(self, screen): # FUNC TO DISPLAY MOUSE LOCATION
         
         if self.hovered_sqr:
             
@@ -305,5 +306,5 @@ class chess_Board:
             
             pygame.draw.rect(screen, color, rect, width=4)
     
-    def set_hover(self, row, col):
+    def set_hover(self, row, col): # TO SET HOVER SQUARE
         self.hovered_sqr = self.squares[row][col]

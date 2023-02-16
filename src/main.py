@@ -105,7 +105,15 @@ class Main:
                             game.next_turn()
                     
                     dragger.undrag_piece(dragging_piece)
+                
+                elif event.type == pygame.KEYDOWN: # WHEN KEY PRESS IS DONE
                     
+                    if event.key == pygame.K_r:
+                        game.reset()
+                        self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                        game = chess_Board(self.screen)
+                        dragger = chess_Dragger()
+                
                 elif event.type == pygame.QUIT: # EXIT GAME
                     pygame.quit()
                     sys.exit()

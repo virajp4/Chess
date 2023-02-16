@@ -308,3 +308,6 @@ class chess_Board:
     
     def set_hover(self, row, col): # TO SET HOVER SQUARE
         self.hovered_sqr = self.squares[row][col]
+
+    def reset(self):
+        self.__init__(self.screen)

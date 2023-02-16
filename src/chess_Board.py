@@ -246,6 +246,10 @@ class chess_Board:
     def castling(self, initial, final): # CHECK IF CASTLING IS POSSIBLE
             return abs(initial.col - final.col) == 2
     
+    def check_promotion(self, piece, final): # PROMOTE PAWN TO QUEEN
+        if final.row == 0 or final.row == 7:
+            self.squares[final.row][final.col].piece = Queen(piece.color)
+    
     def display_moves(self, screen, dragger, dragging_piece=None): #FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
         
         if dragger.dragging:
@@ -265,6 +269,9 @@ class chess_Board:
         
         self.squares[initial.row][initial.col].piece = None
         self.squares[final.row][final.col].piece = piece
+        
+        if isinstance(piece, Pawn): # FOR PAWN PROMOTION TO QUEEN
+            self.check_promotion(piece, final)
         
         if isinstance(piece, King): # FOR CASTLING AND CHANGING ROOK POSITION
             if self.castling(initial,final):

@@ -13,6 +13,10 @@ class chess_Board:
         
         self.screen = screen
         self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(COLS)]
+        self.colors = [ ( (234, 235, 200),(119, 154, 88) ), 
+                        ( (235, 209, 166),(165, 117, 80) ) ]
+        self.color_test = 0
+        self.cur_color = self.colors[self.color_test]
         
         self.last_move = None
         self.next_player = 'white'
@@ -65,7 +69,7 @@ class chess_Board:
         
         for row in range(ROWS):
             for col in range(COLS):
-                color = (234,235,200) if (row + col) % 2 == 0 else (119,154,88)
+                color = self.cur_color[0] if (row + col) % 2 == 0 else self.cur_color[1]
                 rect = (col * SQSIZE, row * SQSIZE, SQSIZE, SQSIZE)
                 pygame.draw.rect(screen, color, rect)
 
@@ -250,7 +254,7 @@ class chess_Board:
         if final.row == 0 or final.row == 7:
             self.squares[final.row][final.col].piece = Queen(piece.color)
     
-    def display_moves(self, screen, dragger, dragging_piece=None): #FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
+    def display_moves(self, screen, dragger, dragging_piece=None): # FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
         
         if dragger.dragging:
             
@@ -318,3 +322,9 @@ class chess_Board:
 
     def reset(self):
         self.__init__(self.screen)
+
+    def change_theme(self, screen):
+        
+        self.color_test += 1
+        self.cur_color =  self.colors[0] if self.color_test % 2 == 0 else self.colors[1]
+        self.display_bg(screen)

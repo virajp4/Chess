@@ -108,6 +108,9 @@ class Main:
                 
                 elif event.type == pygame.KEYDOWN: # WHEN KEY PRESS IS DONE
                     
+                    if event.key == pygame.K_t:
+                        game.change_theme(self.screen)
+                    
                     if event.key == pygame.K_r:
                         game.reset()
                         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))

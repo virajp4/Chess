@@ -31,6 +31,9 @@ class chess_Square:
     def is_first_enemy(self, row, col, row_inc=None, col_inc=None, color=None): # FUNC TO CHECK IF SQ IS THE FIRST ENEMY SQUARE IN LINE
         return chess_Square[row - row_inc][col - col_inc].isempty() and chess_Square[row][col].has_enemy_piece(color)
     
+    def is_check_forked(self):
+        pass
+    
     @staticmethod
     def in_range(*args): # FUNC TO CALC MOVES INSIDE THE BOARD
         for arg in args:

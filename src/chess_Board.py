@@ -99,7 +99,6 @@ class chess_Board:
             final = chess_Square(possible_move_row,possible_move_col,final_piece) # FINAL POS
             
             move = chess_Move(initial,final) # CREATE OBJ OF MOVE CLASS
-            move.is_red = True
             piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
             
         def knight_moves(): # CALC VALID MOVES FOR KNIGHT
@@ -280,7 +279,7 @@ class chess_Board:
             self.check_promotion(piece, final)
         
         if isinstance(piece, King): # FOR CASTLING AND CHANGING ROOK POSITION
-            if self.castling(initial,final): # and not testing: 
+            if self.castling(initial,final):
                 diff = final.col - initial.col
                 rook = piece.left_rook if (diff<0) else piece.right_rook
                 self.move_piece(rook, rook.moves[-1])
@@ -306,29 +305,29 @@ class chess_Board:
             self.last_moved = lm
             piece.last_move = plc
             
-    def attacks_king(self, current, enemy, row, col):
+    def attacks_king(self, enemy, piece, row, col):
         
-        enemy_king = 1 if enemy.color == 'black' else 0
-        self.calc_moves(current, row, col)
+        piece_king = 1 if piece.color == 'black' else 0
+        self.calc_moves(enemy, row, col)
         
-        for moves in current.moves:
+        for moves in enemy.moves:
             
             final = moves.final
-            king = self.king_loc[enemy_king]
+            king = self.king_loc[piece_king]
             
             if final.row == king[0] and final.col == king[1]:
-                current.clear_moves()
+                enemy.clear_moves()
                 return True
         return False
     
-    def after_move_check(self, enemy):
+    def after_move_check(self, piece):
         
         for row in range(ROWS):
             for col in range(COLS):
-                if self.squares[row][col].has_enemy_piece(enemy.color):
-                    current = self.squares[row][col].piece
-                    if self.attacks_king(current, enemy, row, col):
-                        self.undo_move(enemy, enemy.last_move)
+                if self.squares[row][col].has_enemy_piece(piece.color):
+                    enemy = self.squares[row][col].piece
+                    if self.attacks_king(enemy, piece, row, col):
+                        self.undo_move(piece, piece.last_move)
                         return False
         return True
         

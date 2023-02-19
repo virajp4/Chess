@@ -261,11 +261,12 @@ class chess_Board:
             
             for move in dragging_piece.moves:
                 
-                color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
-                
-                rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
-                
-                pygame.draw.rect(screen, color, rect)
+                if self.move_piece(dragging_piece,move):
+                    color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
+                    
+                    rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
+                    
+                    pygame.draw.rect(screen, color, rect)
     
     def move_piece(self, piece, move): # FUNC TO MOVE PIECE
         
@@ -287,23 +288,18 @@ class chess_Board:
                 self.king_loc[0] = [final.row,final.col]
             else:
                 self.king_loc[1] = [final.row,final.col]
-        
-        lm = self.last_moved
-        plc = piece.last_move
-        
-        self.last_moved = move
-        piece.last_move = move
-        
-        if self.after_move_check(piece):
+                
+        if not self.after_move_check(piece):
             piece.moved = True
             piece.clear_moves()
+            self.next_turn()
             self.last_moved = move
             piece.last_move = move
-            self.next_turn()
+            return True
         
         else:
-            self.last_moved = lm
-            piece.last_move = plc
+            self.undo_move(piece, piece.last_move)
+            return False
             
     def attacks_king(self, enemy, piece, row, col):
         
@@ -327,20 +323,17 @@ class chess_Board:
                 if self.squares[row][col].has_enemy_piece(piece.color):
                     enemy = self.squares[row][col].piece
                     if self.attacks_king(enemy, piece, row, col):
-                        self.undo_move(piece, piece.last_move)
-                        return False
-        return True
+                        self.in_check = True
+                        return True
+        self.in_check = False
+        return False
         
     def undo_move(self, piece, move):
-        
         initial = move.initial
         final = move.final
         self.squares[final.row][final.col].piece = None
         self.squares[initial.row][initial.col].piece = piece
         
-        self.last_moved = move
-        piece.last_move = move
-    
     def next_turn(self): # FUNC TO DECIDE NEXT PLAYER TURN
         self.next_player = 'white' if self.next_player == 'black' else 'black'
     

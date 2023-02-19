@@ -32,7 +32,6 @@ class Main:
             game.display_hovered(self.screen)
             game.display_pieces(self.screen, dragger.piece) # DISPLAY CHESS BOARD PIECES
             
-            
             if dragger.dragging:
                 dragger.update_icon(self.screen) # CHANGE SIZE OF DRAGGING PIECE
                 
@@ -52,7 +51,7 @@ class Main:
                         if dragging_piece.color == game.next_player:
                         
                             # CALC VALID MOVES AND DRAG
-                            game.calc_moves(dragging_piece, clicked_row, clicked_col)
+                            game.calc_moves(dragging_piece, clicked_row, clicked_col, bool=True)
                             dragger.save_initial(event.pos)
                             dragger.drag_piece(dragging_piece)
                             

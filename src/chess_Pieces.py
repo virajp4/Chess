@@ -14,6 +14,7 @@ class Piece:
         self.value = value * value_sign
         
         self.moves = []
+        self.last_move = None
         self.moved = False
         
         self.texture = texture

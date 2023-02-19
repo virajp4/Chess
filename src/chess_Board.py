@@ -19,9 +19,10 @@ class chess_Board:
         self.color_test = 0
         self.cur_color = self.colors[self.color_test]
         
-        self.last_move = None
+        self.last_moved = None
         self.next_player = 'white'
         self.hovered_sqr = None
+        self.king_loc = [[7,4],[0,4]]
         
         self.dragger = chess_Dragger()
         
@@ -181,7 +182,6 @@ class chess_Board:
                                 piece.left_rook = left_rook
                                 create_moves(row,0,row,3,left_rook)
                                 create_moves(row,col,row,2,piece)
-                                print("test")
                            
         def straightline_moves(increment):
             
@@ -267,9 +267,9 @@ class chess_Board:
                 rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
                 
                 pygame.draw.rect(screen, color, rect)
-
-    def move_piece(self, piece, move): # FUNC TO MOVE PIECE
-                
+    
+    def move_piece(self, piece, move, illegal=False): # FUNC TO MOVE PIECE
+        
         initial = move.initial
         final = move.final
         
@@ -284,22 +284,73 @@ class chess_Board:
                 diff = final.col - initial.col
                 rook = piece.left_rook if (diff<0) else piece.right_rook
                 self.move_piece(rook, rook.moves[-1])
+            if piece.color == 'white':
+                self.king_loc[0] = [final.row,final.col]
+            else:
+                self.king_loc[1] = [final.row,final.col]
         
-        if initial != final:
+        lm = self.last_moved
+        plc = piece.last_move
+        
+        self.last_moved = move
+        piece.last_move = move
+        
+        if self.after_move_check(piece):
             piece.moved = True
             piece.clear_moves()
-            self.last_move = move
-        else: piece.moved = False
+            self.last_moved = move
+            piece.last_move = move
+            self.next_turn()
         
+        else:
+            self.last_moved = lm
+            piece.last_move = plc
+            
+    def attacks_king(self, current, enemy, row, col):
+        
+        enemy_king = 1 if enemy.color == 'black' else 0
+        self.calc_moves(current, row, col)
+        
+        for moves in current.moves:
+            
+            final = moves.final
+            king = self.king_loc[enemy_king]
+            
+            if final.row == king[0] and final.col == king[1]:
+                current.clear_moves()
+                return True
+        return False
+    
+    def after_move_check(self, enemy):
+        
+        for row in range(ROWS):
+            for col in range(COLS):
+                if self.squares[row][col].has_enemy_piece(enemy.color):
+                    current = self.squares[row][col].piece
+                    if self.attacks_king(current, enemy, row, col):
+                        self.undo_move(enemy, enemy.last_move)
+                        return False
+        return True
+        
+    def undo_move(self, piece, move):
+        
+        initial = move.initial
+        final = move.final
+        self.squares[final.row][final.col].piece = None
+        self.squares[initial.row][initial.col].piece = piece
+        
+        self.last_moved = move
+        piece.last_move = move
+    
     def next_turn(self): # FUNC TO DECIDE NEXT PLAYER TURN
         self.next_player = 'white' if self.next_player == 'black' else 'black'
     
     def display_last_move(self, screen): # FUNC TO DISPLAY LAST MOVE
         
-        if self.last_move:
+        if self.last_moved:
             
-            initial = self.last_move.initial
-            final = self.last_move.final
+            initial = self.last_moved.initial
+            final = self.last_moved.final
             
             for pos in [initial, final]:
                 

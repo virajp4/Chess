@@ -51,7 +51,7 @@ class Main:
                         if dragging_piece.color == game.next_player:
                         
                             # CALC VALID MOVES AND DRAG
-                            game.calc_moves(dragging_piece, clicked_row, clicked_col, bool=True)
+                            game.calc_moves(dragging_piece, clicked_row, clicked_col)
                             dragger.save_initial(event.pos)
                             dragger.drag_piece(dragging_piece)
                             
@@ -100,10 +100,9 @@ class Main:
                             game.display_bg(self.screen)
                             game.display_last_move(self.screen)
                             game.display_pieces(self.screen)
-                            
-                            game.next_turn()
+                        
                     
-                    dragger.undrag_piece(dragging_piece)
+                        dragger.undrag_piece(dragging_piece)
                 
                 elif event.type == pygame.KEYDOWN: # WHEN KEY PRESS IS DONE
                     

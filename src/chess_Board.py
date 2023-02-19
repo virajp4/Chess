@@ -89,7 +89,7 @@ class chess_Board:
                         piece.texture_rect = img.get_rect(center=img_center)
                         screen.blit(img, piece.texture_rect)   
 
-    def calc_moves(self, piece, row, col, bool=True): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
+    def calc_moves(self, piece, row, col): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
         
         def create_moves(row,col,possible_move_row,possible_move_col,piece): # CREATE VALID MOVES FOR A PIECE
             
@@ -251,35 +251,6 @@ class chess_Board:
 
     def castling(self, initial, final): # CHECK IF CASTLING IS POSSIBLE
             return abs(initial.col - final.col) == 2
-    
-    def copy(self):
-            
-            new = self.__class__(self.screen)
-            
-            new.screen = self.screen
-            new.squares = self.squares
-            new.color_test = self.color_test
-            new.cur_color = self.cur_color
-            new.last_move = self.last_move
-            
-            return new
-    
-    def in_check(self, piece, move):
-        
-        temp_piece = cp.deepcopy(piece)
-        temp_board = self.copy()
-        temp_board.move_piece(temp_piece, move)
-        
-        for row in range(ROWS):
-            for col in range(COLS):
-                if temp_board.squares[row][col].has_enemy_piece(piece.color):
-                    p = temp_board.squares[row][col].piece
-                    temp_board.calc_moves(p, row, col, bool=False)
-                    for m in p.moves:
-                        if isinstance(m.final.piece, King):
-                            return True
-        
-        return False
     
     def check_promotion(self, piece, final): # PROMOTE PAWN TO QUEEN
         if final.row == 0 or final.row == 7:

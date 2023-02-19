@@ -268,7 +268,7 @@ class chess_Board:
                 
                 pygame.draw.rect(screen, color, rect)
     
-    def move_piece(self, piece, move, illegal=False): # FUNC TO MOVE PIECE
+    def move_piece(self, piece, move): # FUNC TO MOVE PIECE
         
         initial = move.initial
         final = move.final

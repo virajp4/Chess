@@ -99,8 +99,9 @@ class chess_Board:
             final = chess_Square(possible_move_row,possible_move_col,final_piece) # FINAL POS
             
             move = chess_Move(initial,final) # CREATE OBJ OF MOVE CLASS
-            piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
             
+            piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
+
         def knight_moves(): # CALC VALID MOVES FOR KNIGHT
             possible_moves = [
                 (row-2, col+1),
@@ -260,13 +261,33 @@ class chess_Board:
         if dragger.dragging:
             
             for move in dragging_piece.moves:
-                
-                if self.move_piece(dragging_piece,move):
-                    color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
-                    
-                    rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
-                    
-                    pygame.draw.rect(screen, color, rect)
+
+                    if self.is_illegal_move(dragging_piece, move):
+                        dragging_piece.moves.remove(move)
+                        
+                    else:
+                        color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
+                        
+                        rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
+                        
+                        pygame.draw.rect(screen, color, rect)
+    
+    def is_illegal_move(self, piece, move):
+        
+        initial = move.initial
+        final = move.final
+        self.squares[initial.row][initial.col].piece = None
+        otherpiece = self.squares[final.row][final.col].piece
+        self.squares[final.row][final.col].piece = piece
+        
+        if self.after_move_check(piece):
+            self.squares[final.row][final.col].piece = otherpiece
+            self.squares[initial.row][initial.col].piece = piece
+            return True
+        else:
+            self.squares[final.row][final.col].piece = otherpiece
+            self.squares[initial.row][initial.col].piece = piece
+            return False
     
     def move_piece(self, piece, move): # FUNC TO MOVE PIECE
         
@@ -298,7 +319,8 @@ class chess_Board:
             return True
         
         else:
-            self.undo_move(piece, piece.last_move)
+            self.undo_move(piece, move)
+            piece.moves.remove(move)
             return False
             
     def attacks_king(self, enemy, piece, row, col):
@@ -307,13 +329,10 @@ class chess_Board:
         self.calc_moves(enemy, row, col)
         
         for moves in enemy.moves:
-            
-            final = moves.final
-            king = self.king_loc[piece_king]
-            
-            if final.row == king[0] and final.col == king[1]:
-                enemy.clear_moves()
+            if isinstance(moves.final.piece, King):
+                enemy.moves = []
                 return True
+        enemy.moves = []
         return False
     
     def after_move_check(self, piece):

@@ -106,6 +106,9 @@ class Main:
                 
                 elif event.type == pygame.KEYDOWN: # WHEN KEY PRESS IS DONE
                     
+                    if event.key == pygame.K_LEFT:
+                        pass
+                    
                     if event.key == pygame.K_t:
                         game.change_theme(self.screen)
                     

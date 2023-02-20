@@ -102,7 +102,7 @@ class chess_Board:
             move = chess_Move(initial,final) # CREATE OBJ OF MOVE CLASS
             
             piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
-
+          
         def knight_moves(): # CALC VALID MOVES FOR KNIGHT
             possible_moves = [
                 (row-2, col+1),
@@ -122,7 +122,7 @@ class chess_Board:
                     if self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color): # CHECK IF SQ IS EMPTY OR ENEMY
                         
                         create_moves(row,col,possible_move_row,possible_move_col,piece)
-        
+            
         def pawn_moves(): # CALC VALID MOVES FOR PAWN
             
             steps = 1 if piece.moved else 2
@@ -154,7 +154,7 @@ class chess_Board:
                     side = self.last_moved_move.final.col - col
                     create_moves(row, col, row+piece.dir, col+side, piece)
                     piece.did_enpass = True
-              
+                   
         def king_moves(increment): # CALC VALID KING MOVES
             
             for inc in increment: # NORMAL KING MOVES
@@ -190,7 +190,7 @@ class chess_Board:
                                 piece.left_rook = left_rook
                                 create_moves(row,0,row,3,left_rook)
                                 create_moves(row,col,row,2,piece)
-                           
+                                     
         def straightline_moves(increment): # STRAIGHT AND DIAG MOVES
             
             for inc in increment:
@@ -210,7 +210,7 @@ class chess_Board:
                         break
                     
                     else: break
-        
+            
         if piece.name == "pawn": # PAWN MOVES
             pawn_moves()
         
@@ -284,6 +284,7 @@ class chess_Board:
         
         initial = move.initial
         final = move.final
+        
         self.squares[initial.row][initial.col].piece = None
         otherpiece = self.squares[final.row][final.col].piece
         self.squares[final.row][final.col].piece = piece
@@ -296,6 +297,12 @@ class chess_Board:
             self.squares[final.row][final.col].piece = otherpiece
             self.squares[initial.row][initial.col].piece = piece
             return False
+    
+    def remove_illegal_moves(self, piece=None):
+            
+        for move in piece.moves:
+            if self.is_illegal_move(piece, move):
+                piece.moves.remove(move)
     
     def move_piece(self, piece, move): # FUNC TO MOVE PIECE
         
@@ -336,16 +343,10 @@ class chess_Board:
             self.last_moved_move = move
             self.last_moved_piece = piece
             piece.last_move = move
-            return True
-        
-        else:
-            self.undo_move(piece, move)
-            piece.moves.remove(move)
-            return False
+            self.check_for_mate(self.screen, piece)
             
-    def attacks_king(self, enemy, piece, row, col): # CHECK IF ENEMY PIECE ATTACK KING
+    def gives_check(self, enemy, piece, row, col): # CHECK IF ENEMY PIECE ATTACK KING
         
-        piece_king = 1 if piece.color == 'black' else 0
         self.calc_moves(enemy, row, col)
         
         for moves in enemy.moves:
@@ -361,10 +362,8 @@ class chess_Board:
             for col in range(COLS):
                 if self.squares[row][col].has_enemy_piece(piece.color):
                     enemy = self.squares[row][col].piece
-                    if self.attacks_king(enemy, piece, row, col):
-                        self.in_check = True
+                    if self.gives_check(enemy, piece, row, col):
                         return True
-        self.in_check = False
         return False
         
     def undo_move(self, piece, move): # UNDO A MOVE
@@ -400,6 +399,9 @@ class chess_Board:
             rect = (self.hovered_sqr.col * SQSIZE, self.hovered_sqr.row * SQSIZE, SQSIZE, SQSIZE)
             
             pygame.draw.rect(screen, color, rect, width=4)
+    
+    def check_for_mate(self, screen, piece): # FUNC TO CHECK FOR CHECKMATE
+        pass
     
     def set_hover(self, row, col): # TO SET HOVER SQUARE
         self.hovered_sqr = self.squares[row][col]

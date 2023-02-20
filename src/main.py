@@ -8,7 +8,7 @@ from chess_Board import *
 from chess_Dragger import *
 
 # THIS FILE IS THE MAIN FILE WHICH RUNS THE PROGRAM
-## TO DO :- CHECKMATE, EN PASSANT, AUDIO, ICON CLARITY
+## TO DO :- CHECKMATE, AUDIO, ICON CLARITY
 
 
 class Main:

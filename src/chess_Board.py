@@ -19,7 +19,8 @@ class chess_Board:
         self.color_test = 0
         self.cur_color = self.colors[self.color_test]
         
-        self.last_moved = None
+        self.last_moved_move = None
+        self.last_moved_piece = None
         self.next_player = 'white'
         self.hovered_sqr = None
         self.king_loc = [[7,4],[0,4]]
@@ -146,6 +147,13 @@ class chess_Board:
                 if chess_Square.in_range(possible_move_col) and self.squares[possible_move_row][possible_move_col].has_enemy_piece(piece.color):
                     
                     create_moves(row,col,possible_move_row,possible_move_col,piece)
+            
+            # EN PASSANT MOVES
+            if isinstance(self.last_moved_piece, Pawn) and self.last_moved_piece.enpass:
+                if self.last_moved_move.final.row == row:
+                    side = self.last_moved_move.final.col - col
+                    create_moves(row, col, row+piece.dir, col+side, piece)
+                    piece.did_enpass = True
               
         def king_moves(increment): # CALC VALID KING MOVES
             
@@ -183,7 +191,7 @@ class chess_Board:
                                 create_moves(row,0,row,3,left_rook)
                                 create_moves(row,col,row,2,piece)
                            
-        def straightline_moves(increment):
+        def straightline_moves(increment): # STRAIGHT AND DIAG MOVES
             
             for inc in increment:
                 row_inc, col_inc = inc
@@ -272,7 +280,7 @@ class chess_Board:
                         
                         pygame.draw.rect(screen, color, rect)
     
-    def is_illegal_move(self, piece, move):
+    def is_illegal_move(self, piece, move): # FUNC TO CHECK IF PIECE MOVE IS ILLEGAL
         
         initial = move.initial
         final = move.final
@@ -299,7 +307,18 @@ class chess_Board:
         
         if isinstance(piece, Pawn): # FOR PAWN PROMOTION TO QUEEN
             self.check_promotion(piece, final)
-        
+            
+            if abs(final.row - initial.row) == 2:
+                piece.enpass = True
+            
+            if piece.did_enpass:
+                rowdiff = self.last_moved_move.final.row - final.row
+                self.squares[final.row+rowdiff][final.col].piece = None
+            
+        if isinstance(self.last_moved_piece, Pawn): # FOR ENPASSANT
+            self.last_moved_piece.enpass = False
+            self.last_moved_piece.did_enpass = False
+            
         if isinstance(piece, King): # FOR CASTLING AND CHANGING ROOK POSITION
             if self.castling(initial,final):
                 diff = final.col - initial.col
@@ -310,11 +329,12 @@ class chess_Board:
             else:
                 self.king_loc[1] = [final.row,final.col]
                 
-        if not self.after_move_check(piece):
+        if not self.after_move_check(piece): # CHECK IF MOVE IS LEGAL
             piece.moved = True
             piece.clear_moves()
             self.next_turn()
-            self.last_moved = move
+            self.last_moved_move = move
+            self.last_moved_piece = piece
             piece.last_move = move
             return True
         
@@ -323,7 +343,7 @@ class chess_Board:
             piece.moves.remove(move)
             return False
             
-    def attacks_king(self, enemy, piece, row, col):
+    def attacks_king(self, enemy, piece, row, col): # CHECK IF ENEMY PIECE ATTACK KING
         
         piece_king = 1 if piece.color == 'black' else 0
         self.calc_moves(enemy, row, col)
@@ -335,7 +355,7 @@ class chess_Board:
         enemy.moves = []
         return False
     
-    def after_move_check(self, piece):
+    def after_move_check(self, piece): # FUNC TO CHECK IF MOVE IS LEGAL
         
         for row in range(ROWS):
             for col in range(COLS):
@@ -347,7 +367,7 @@ class chess_Board:
         self.in_check = False
         return False
         
-    def undo_move(self, piece, move):
+    def undo_move(self, piece, move): # UNDO A MOVE
         initial = move.initial
         final = move.final
         self.squares[final.row][final.col].piece = None
@@ -358,10 +378,10 @@ class chess_Board:
     
     def display_last_move(self, screen): # FUNC TO DISPLAY LAST MOVE
         
-        if self.last_moved:
+        if self.last_moved_move:
             
-            initial = self.last_moved.initial
-            final = self.last_moved.final
+            initial = self.last_moved_move.initial
+            final = self.last_moved_move.final
             
             for pos in [initial, final]:
                 
@@ -384,10 +404,10 @@ class chess_Board:
     def set_hover(self, row, col): # TO SET HOVER SQUARE
         self.hovered_sqr = self.squares[row][col]
 
-    def reset(self):
+    def reset(self): # RESET BOARD
         self.__init__(self.screen)
 
-    def change_theme(self, screen):
+    def change_theme(self, screen): # CHANGE THEME
         
         self.color_test += 1
         self.cur_color =  self.colors[0] if self.color_test % 2 == 0 else self.colors[1]

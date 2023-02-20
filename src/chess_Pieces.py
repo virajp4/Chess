@@ -35,6 +35,8 @@ class Pawn(Piece):
     
     def __init__(self, color):
         super().__init__('pawn', color, 1.0)
+        self.enpass = False
+        self.did_enpass = False
 
 class Knight(Piece):
     

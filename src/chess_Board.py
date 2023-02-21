@@ -264,6 +264,27 @@ class chess_Board:
         if final.row == 0 or final.row == 7:
             self.squares[final.row][final.col].piece = Queen(piece.color)
     
+    def gives_check(self, enemy, row, col): # CHECK IF ENEMY PIECE ATTACK KING
+        
+        self.calc_moves(enemy, row, col)
+        
+        for moves in enemy.moves:
+            if isinstance(moves.final.piece, King):
+                enemy.moves = []
+                return True
+        enemy.moves = []
+        return False
+    
+    def after_move_check(self, piece): # FUNC TO CHECK IF MOVE IS LEGAL
+        
+        for row in range(ROWS):
+            for col in range(COLS):
+                if self.squares[row][col].has_enemy_piece(piece.color):
+                    enemy = self.squares[row][col].piece
+                    if self.gives_check(enemy, row, col):
+                        return True
+        return False
+    
     def display_moves(self, screen, dragger, dragging_piece=None): # FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
         
         if dragger.dragging:
@@ -344,28 +365,7 @@ class chess_Board:
             self.last_moved_piece = piece
             piece.last_move = move
             self.check_for_mate(self.screen, piece)
-            
-    def gives_check(self, enemy, piece, row, col): # CHECK IF ENEMY PIECE ATTACK KING
-        
-        self.calc_moves(enemy, row, col)
-        
-        for moves in enemy.moves:
-            if isinstance(moves.final.piece, King):
-                enemy.moves = []
-                return True
-        enemy.moves = []
-        return False
-    
-    def after_move_check(self, piece): # FUNC TO CHECK IF MOVE IS LEGAL
-        
-        for row in range(ROWS):
-            for col in range(COLS):
-                if self.squares[row][col].has_enemy_piece(piece.color):
-                    enemy = self.squares[row][col].piece
-                    if self.gives_check(enemy, piece, row, col):
-                        return True
-        return False
-        
+     
     def undo_move(self, piece, move): # UNDO A MOVE
         initial = move.initial
         final = move.final

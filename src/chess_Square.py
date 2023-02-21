@@ -9,6 +9,7 @@ class chess_Square:
         self.row = row
         self.col = col
         self.piece = piece
+        self.isred = False
     
     def __eq__(self, other): # FUNC TO COMPARE 2 SQUARES
         return self.row == other.row and self.col == other.col

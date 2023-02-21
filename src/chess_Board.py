@@ -89,7 +89,7 @@ class chess_Board:
                         img = pygame.image.load(piece.texture)
                         img_center = col * SQSIZE + SQSIZE // 2, row * SQSIZE + SQSIZE // 2
                         piece.texture_rect = img.get_rect(center=img_center)
-                        screen.blit(img, piece.texture_rect)   
+                        screen.blit(img, piece.texture_rect)
 
     def calc_moves(self, piece, row, col): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
         
@@ -264,6 +264,30 @@ class chess_Board:
         if final.row == 0 or final.row == 7:
             self.squares[final.row][final.col].piece = Queen(piece.color)
     
+    def display_moves(self, screen, dragger, dragging_piece=None): # FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
+        
+        if dragger.dragging:
+            
+            for move in dragging_piece.moves:
+
+                    if self.is_illegal_move(dragging_piece, move):
+                        dragging_piece.moves.remove(move)
+                        
+                    else:
+                        color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
+                        
+                        rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
+                        
+                        pygame.draw.rect(screen, color, rect)
+    
+    def check_available_moves(self, piece):
+            
+            for move in piece.moves:
+                if not self.is_illegal_move(piece,move):
+                    print("piece->",piece.name,"; moves->",len(piece.moves))
+                    piece.moves.remove(move)
+            
+                        
     def gives_check(self, enemy, row, col): # CHECK IF ENEMY PIECE ATTACK KING
         
         self.calc_moves(enemy, row, col)
@@ -284,23 +308,7 @@ class chess_Board:
                     if self.gives_check(enemy, row, col):
                         return True
         return False
-    
-    def display_moves(self, screen, dragger, dragging_piece=None): # FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
-        
-        if dragger.dragging:
-            
-            for move in dragging_piece.moves:
 
-                    if self.is_illegal_move(dragging_piece, move):
-                        dragging_piece.moves.remove(move)
-                        
-                    else:
-                        color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
-                        
-                        rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
-                        
-                        pygame.draw.rect(screen, color, rect)
-    
     def is_illegal_move(self, piece, move): # FUNC TO CHECK IF PIECE MOVE IS ILLEGAL
         
         initial = move.initial
@@ -364,7 +372,6 @@ class chess_Board:
             self.last_moved_move = move
             self.last_moved_piece = piece
             piece.last_move = move
-            self.check_for_mate(self.screen, piece)
      
     def undo_move(self, piece, move): # UNDO A MOVE
         initial = move.initial
@@ -400,9 +407,22 @@ class chess_Board:
             
             pygame.draw.rect(screen, color, rect, width=4)
     
-    def check_for_mate(self, screen, piece): # FUNC TO CHECK FOR CHECKMATE
-        pass
-    
+    def check_for_mate(self): # FUNC TO CHECK FOR CHECKMATE
+        pieces,count = 0,0
+        temp = 'black' if self.last_moved_piece.color=='white' else 'white'
+        for row in range(ROWS):
+            for col in range(COLS):
+                if self.squares[row][col].has_enemy_piece(self.last_moved_piece.color):
+                    piece = self.squares[row][col].piece
+                    pieces+=1
+                    self.check_available_moves(piece)
+                    if len(piece.moves)==0:
+                        count+=1
+                    
+        print(temp,"opp pieces=",pieces,"; movable pieces=",pieces-count)
+        if pieces==count:
+            print("mate")
+        
     def set_hover(self, row, col): # TO SET HOVER SQUARE
         self.hovered_sqr = self.squares[row][col]
 

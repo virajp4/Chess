@@ -35,7 +35,7 @@ class Main:
             if dragger.dragging:
                 dragger.update_icon(self.screen) # CHANGE SIZE OF DRAGGING PIECE
                 
-            for event in pygame.event.get():
+            for event in pygame.event.get():    
                 
                 if event.type == pygame.MOUSEBUTTONDOWN: # WHEN PIECE IS CLICKED ON
                     
@@ -101,8 +101,8 @@ class Main:
                             game.display_last_move(self.screen)
                             game.display_pieces(self.screen)
                         
-                    
                         dragger.undrag_piece(dragging_piece)
+                        game.check_for_mate()
                 
                 elif event.type == pygame.KEYDOWN: # WHEN KEY PRESS IS DONE
                     

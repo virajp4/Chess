@@ -101,7 +101,11 @@ class Main:
                             game.display_last_move(self.screen)
                             game.display_pieces(self.screen)
                         
-                        dragger.undrag_piece(dragging_piece)    
+                        dragger.undrag_piece(dragging_piece)
+                        if game.last_moved_piece:
+                            if game.check_for_mate(game.last_moved_piece):
+                                pygame.quit()
+                                sys.exit()
                 
                 elif event.type == pygame.KEYDOWN: # WHEN KEY PRESS IS DONE
                     

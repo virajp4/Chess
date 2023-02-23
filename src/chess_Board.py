@@ -100,7 +100,6 @@ class chess_Board:
             final = chess_Square(possible_move_row,possible_move_col,final_piece) # FINAL POS
             
             move = chess_Move(initial,final) # CREATE OBJ OF MOVE CLASS
-            
             piece.add_move(move) # ADD MOVE TO MOVES LIST OF THAT PIECE
           
         def knight_moves(): # CALC VALID MOVES FOR KNIGHT
@@ -256,7 +255,7 @@ class chess_Board:
                 (1, 1),
                 (1, -1)
             ])
-
+        
     def castling(self, initial, final): # CHECK IF CASTLING IS POSSIBLE
             return abs(initial.col - final.col) == 2
     
@@ -267,79 +266,19 @@ class chess_Board:
     def display_moves(self, screen, dragger, dragging_piece=None): # FUNC TO DISPLAY VALID MOVES FOR CLICKED PIECE
         
         if dragger.dragging:
-            
+                
             for move in dragging_piece.moves:
-
-                    if self.is_illegal_move(dragging_piece, move):
-                        dragging_piece.moves.remove(move)
-                        
-                    else:
-                        color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
-                        
-                        rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
-                        
-                        pygame.draw.rect(screen, color, rect)
-    
-    def check_available_moves(self, piece):
-            
-            for move in piece.moves:
-                if not self.is_illegal_move(piece,move):
-                    print("piece->",piece.name,"; moves->",len(piece.moves))
-                    piece.moves.remove(move)
-            
-                        
-    def gives_check(self, enemy, row, col): # CHECK IF ENEMY PIECE ATTACK KING
+                
+                if not self.is_legal_move(dragging_piece, move, displaying=True):
+                    print("removed a move")
+                    dragging_piece.moves.remove(move)
+                
+                else:
+                    color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
+                    rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
+                    pygame.draw.rect(screen, color, rect)
         
-        self.calc_moves(enemy, row, col)
-        
-        for moves in enemy.moves:
-            if isinstance(moves.final.piece, King):
-                enemy.moves = []
-                return True
-        enemy.moves = []
-        return False
-    
-    def after_move_check(self, piece): # FUNC TO CHECK IF MOVE IS LEGAL
-        
-        for row in range(ROWS):
-            for col in range(COLS):
-                if self.squares[row][col].has_enemy_piece(piece.color):
-                    enemy = self.squares[row][col].piece
-                    if self.gives_check(enemy, row, col):
-                        return True
-        return False
-
-    def is_illegal_move(self, piece, move): # FUNC TO CHECK IF PIECE MOVE IS ILLEGAL
-        
-        initial = move.initial
-        final = move.final
-        
-        self.squares[initial.row][initial.col].piece = None
-        otherpiece = self.squares[final.row][final.col].piece
-        self.squares[final.row][final.col].piece = piece
-        
-        if self.after_move_check(piece):
-            self.squares[final.row][final.col].piece = otherpiece
-            self.squares[initial.row][initial.col].piece = piece
-            return True
-        else:
-            self.squares[final.row][final.col].piece = otherpiece
-            self.squares[initial.row][initial.col].piece = piece
-            return False
-    
-    def remove_illegal_moves(self, piece=None):
-            
-        for move in piece.moves:
-            if self.is_illegal_move(piece, move):
-                piece.moves.remove(move)
-    
-    def move_piece(self, piece, move): # FUNC TO MOVE PIECE
-        
-        initial = move.initial
-        final = move.final
-        
-        self.squares[initial.row][initial.col].piece = None
-        self.squares[final.row][final.col].piece = piece
+    def custom_moves(self, piece, initial, final):
         
         if isinstance(piece, Pawn): # FOR PAWN PROMOTION TO QUEEN
             self.check_promotion(piece, final)
@@ -350,11 +289,11 @@ class chess_Board:
             if piece.did_enpass:
                 rowdiff = self.last_moved_move.final.row - final.row
                 self.squares[final.row+rowdiff][final.col].piece = None
-            
+        
         if isinstance(self.last_moved_piece, Pawn): # FOR ENPASSANT
             self.last_moved_piece.enpass = False
             self.last_moved_piece.did_enpass = False
-            
+        
         if isinstance(piece, King): # FOR CASTLING AND CHANGING ROOK POSITION
             if self.castling(initial,final):
                 diff = final.col - initial.col
@@ -364,14 +303,88 @@ class chess_Board:
                 self.king_loc[0] = [final.row,final.col]
             else:
                 self.king_loc[1] = [final.row,final.col]
-                
-        if not self.after_move_check(piece): # CHECK IF MOVE IS LEGAL
+    
+    def move_piece(self, piece, move): # FUNC TO MOVE PIECE
+        
+        initial = move.initial
+        final = move.final
+        
+        if not self.is_illegal_move(piece, move): # CHECK IF MOVE IS LEGAL
+            
+            self.custom_moves(piece, initial, final)
+            piece.last_move = move
+            self.last_moved_move = move
+            self.last_moved_piece = piece
             piece.moved = True
             piece.clear_moves()
             self.next_turn()
-            self.last_moved_move = move
-            self.last_moved_piece = piece
-            piece.last_move = move
+        
+        else:
+            self.squares[final.row][final.col].piece = otherpiece
+            self.squares[initial.row][initial.col].piece = piece
+    
+    def is_illegal_move(self, piece, move, displaying = False): # FUNC TO CHECK IF PIECE MOVE IS ILLEGAL
+        
+        initial = move.initial
+        final = move.final
+        
+        self.squares[initial.row][initial.col].piece = None
+        otherpiece = self.squares[final.row][final.col].piece
+        self.squares[final.row][final.col].piece = piece
+        
+        if self.is_legal_move(piece, move):
+            if displaying:
+                self.squares[final.row][final.col].piece = otherpiece
+                self.squares[initial.row][initial.col].piece = piece
+            return False
+        else:
+            self.squares[final.row][final.col].piece = otherpiece
+            self.squares[initial.row][initial.col].piece = piece
+            return True
+    
+    def is_legal_move(self, piece, move, displaying=False): # FUNC TO CHECK IF MOVE IS LEGAL
+        
+        if displaying:
+            
+            initial = move.initial
+            final = move.final
+            self.squares[initial.row][initial.col].piece = None
+            otherpiece = self.squares[final.row][final.col].piece
+            self.squares[final.row][final.col].piece = piece
+            
+        for row in range(ROWS):
+            for col in range(COLS):
+                if self.squares[row][col].has_enemy_piece(piece.color):
+                    enemy = self.squares[row][col].piece
+                    self.calc_moves(enemy,row,col)
+                    if self.piece_gives_check(enemy):
+                        self.squares[final.row][final.col].piece = otherpiece
+                        self.squares[initial.row][initial.col].piece = piece
+                        return False
+        
+        if displaying:
+            self.squares[final.row][final.col].piece = otherpiece
+            self.squares[initial.row][initial.col].piece = piece
+            
+        return True
+    
+    def piece_gives_check(self, piece):
+        
+        op_color = 'black' if piece.color == 'white' else 'white'
+        for move in piece.moves:
+            if isinstance(move.final.piece, King) and move.final.piece.color == op_color:
+                piece.clear_moves()
+                return True
+            
+        piece.clear_moves()            
+        return False
+    
+    def remove_illegal_moves(self, piece):
+    
+        for move in piece.moves:
+            if self.is_illegal_move(piece, move, displaying=True):
+                print("removed a move")
+                piece.moves.remove(move)
      
     def undo_move(self, piece, move): # UNDO A MOVE
         initial = move.initial
@@ -408,11 +421,12 @@ class chess_Board:
             pygame.draw.rect(screen, color, rect, width=4)
     
     def check_for_mate(self): # FUNC TO CHECK FOR CHECKMATE
+        
         pieces,count = 0,0
-        temp = 'black' if self.last_moved_piece.color=='white' else 'white'
+        temp = 'black' if self.last_moved_piece.color=='white' else 'black' if self.last_moved_piece.color==None else 'white'
         for row in range(ROWS):
             for col in range(COLS):
-                if self.squares[row][col].has_enemy_piece(self.last_moved_piece.color):
+                if self.squares[row][col].has_enemy_piece(temp):
                     piece = self.squares[row][col].piece
                     pieces+=1
                     self.check_available_moves(piece)

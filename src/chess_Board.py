@@ -309,13 +309,9 @@ class chess_Board:
     
     def move_piece(self, piece, move): # FUNC TO MOVE PIECE
         
-        initial = move.initial
-        final = move.final
-        otherpiece = self.squares[final.row][final.col].piece
-        
         if not self.is_illegal_move(piece, move): # CHECK IF MOVE IS LEGAL
             
-            self.custom_moves(piece, initial, final)
+            self.custom_moves(piece, move.initial, move.final)
             piece.last_move = move
             self.last_moved_move = move
             self.last_moved_piece = piece
@@ -323,10 +319,6 @@ class chess_Board:
             piece.moved = True
             self.next_turn()
         
-        else:
-            self.squares[final.row][final.col].piece = otherpiece
-            self.squares[initial.row][initial.col].piece = piece
-    
     def is_illegal_move(self, piece, move, displaying=False): # FUNC TO CHECK IF MOVE IS ILLEGAL
         
         initial = move.initial

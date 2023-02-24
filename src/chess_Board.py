@@ -23,7 +23,6 @@ class chess_Board:
         self.last_moved_piece = None
         self.next_player = 'white'
         self.hovered_sqr = None
-        self.king_loc = [[7,4],[0,4]]
         
         self.dragger = chess_Dragger()
         
@@ -302,10 +301,6 @@ class chess_Board:
                 diff = final.col - initial.col
                 rook = piece.left_rook if (diff<0) else piece.right_rook
                 self.move_piece(rook, rook.moves[-1])
-            if piece.color == 'white':
-                self.king_loc[0] = [final.row,final.col]
-            else:
-                self.king_loc[1] = [final.row,final.col]
     
     def move_piece(self, piece, move): # FUNC TO MOVE PIECE
         
@@ -338,7 +333,7 @@ class chess_Board:
             self.squares[initial.row][initial.col].piece = piece
             return True
     
-    def is_getting_check(self, piece, move, displaying=False): # FUNC TO CHECK IF WE ARE GETTING CHECK
+    def is_getting_check(self, piece, move, displaying=False): # FUNC TO CHECK IF TEAM IS GETTING CHECK
         
         if displaying:
             

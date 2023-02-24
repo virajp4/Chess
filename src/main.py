@@ -8,7 +8,7 @@ from chess_Board import *
 from chess_Dragger import *
 
 # THIS FILE IS THE MAIN FILE WHICH RUNS THE PROGRAM
-## TO DO :- CHECKMATE, AUDIO, ICON CLARITY
+## TO DO :- AUDIO, ICON CLARITY
 
 
 class Main:
@@ -29,7 +29,7 @@ class Main:
             game.display_bg(self.screen) # DISPLAY CHESS BOARD
             game.display_last_move(self.screen) # DISPLAY PREVIOUS MOVE
             game.display_moves(self.screen, dragger, dragger.piece) # DISPLAY VALID MOVES
-            game.display_hovered(self.screen)
+            game.display_hovered(self.screen) # DISPLAY HOVERING SQUARE
             game.display_pieces(self.screen, dragger.piece) # DISPLAY CHESS BOARD PIECES
             
             if dragger.dragging:

@@ -103,7 +103,7 @@ class Main:
                             
                         dragger.undrag_piece(dragging_piece)
                         if game.last_moved_piece:
-                            if game.check_for_mate(game.last_moved_piece):
+                            if game.check_for_mate(game.last_moved_piece): # CHECK IF CHECKMATED
                                 game.end.play()
                                 pygame.display.update()
                                 time.sleep(5)

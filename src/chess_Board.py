@@ -1,5 +1,5 @@
 import pygame
-import copy as cp
+import os
 
 from const import *
 from chess_Square import *
@@ -15,7 +15,7 @@ class chess_Board:
         self.screen = screen
         self.squares = [[0, 0, 0, 0, 0, 0, 0, 0] for col in range(COLS)]
         self.colors = [ ( (234, 235, 200),(119, 154, 88) ), 
-                        ( (235, 209, 166),(165, 117, 80) ) ]
+                        ( (235, 209, 166),(165, 117, 80) ) ] # THEME LIGHT AND DARK COLORS
         self.color_test = 0
         self.cur_color = self.colors[self.color_test]
         
@@ -26,9 +26,18 @@ class chess_Board:
         
         self.dragger = chess_Dragger()
         
+        self.load_game_sounds() # LOAD SOUNDS
         self.display_bg(self.screen) # DISPLAY CHESS BOARD
         self.create_empty_squares() # CREATE EMPTY SQUARES
         self.create_pieces() # CREATE CHESS BOARD PIECES
+
+    def load_game_sounds(self):
+
+        self.start = pygame.mixer.Sound("assets/sounds/start.mp3")
+        self.move_audio = pygame.mixer.Sound("assets/sounds/move.mp3")
+        self.capture = pygame.mixer.Sound("assets/sounds/capture.mp3")
+        self.castle = pygame.mixer.Sound("assets/sounds/castle.mp3")
+        self.end = pygame.mixer.Sound("assets/sounds/end.mp3")
 
     def create_empty_squares(self): # FUNC TO CREATE SQUARES AS OBJECT OF CH_SQ CLASS TO STORE VALUES
         
@@ -258,9 +267,6 @@ class chess_Board:
                 (1, 1),
                 (1, -1)
             ])
-        
-    def castling(self, initial, final): # CHECK IF CASTLING IS POSSIBLE
-            return abs(initial.col - final.col) == 2
     
     def check_promotion(self, piece, final): # PROMOTE PAWN TO QUEEN
         if final.row == 0 or final.row == 7:
@@ -279,7 +285,7 @@ class chess_Board:
                     color = "#C86464" if (move.final.row + move.final.col) % 2 == 0 else "#C84646"
                     rect = (move.final.col * SQSIZE, move.final.row * SQSIZE, SQSIZE, SQSIZE)
                     pygame.draw.rect(screen, color, rect)
-        
+    
     def custom_moves(self, piece, initial, final): # SPECIAL MOVES
         
         if isinstance(piece, Pawn): # FOR PAWN PROMOTION TO QUEEN
@@ -297,16 +303,27 @@ class chess_Board:
             self.last_moved_piece.did_enpass = False
         
         if isinstance(piece, King): # FOR CASTLING AND CHANGING ROOK POSITION
-            if self.castling(initial,final):
+            if abs(initial.col - final.col) == 2:
                 diff = final.col - initial.col
                 rook = piece.left_rook if (diff<0) else piece.right_rook
-                self.move_piece(rook, rook.moves[-1])
+                self.move_piece(rook, rook.moves[-1], castle=True)
     
-    def move_piece(self, piece, move): # FUNC TO MOVE PIECE
+    def move_piece(self, piece, move, castle=False): # FUNC TO MOVE PIECE
+        
+        prev_piece = self.squares[move.final.row][move.final.col].piece
         
         if not self.is_illegal_move(piece, move): # CHECK IF MOVE IS LEGAL
             
             self.custom_moves(piece, move.initial, move.final)
+            if isinstance(piece, King) and abs(move.initial.col - move.final.col) == 2:
+                castle = True
+            if castle:
+                self.castle.play()
+            elif prev_piece:
+                self.capture.play()
+            else:
+                self.move_audio.play()
+                
             piece.last_move = move
             self.last_moved_move = move
             self.last_moved_piece = piece
@@ -369,13 +386,24 @@ class chess_Board:
             
         piece.clear_moves()            
         return False
-    
-    def undo_move(self, piece, move): # UNDO A MOVE
-        initial = move.initial
-        final = move.final
-        self.squares[final.row][final.col].piece = None
-        self.squares[initial.row][initial.col].piece = piece
+
+    def check_for_mate(self, piece): # FUNC TO CHECK FOR CHECKMATE
         
+        pieces,count = 0,0
+        
+        for row in range(ROWS):
+            for col in range(COLS):
+                if self.squares[row][col].has_enemy_piece(piece.color):
+                    enemy = self.squares[row][col].piece
+                    pieces+=1
+                    self.calc_moves(enemy, row, col, incheck=True)
+                    if len(enemy.moves)==0:
+                        count+=1
+                    
+        if pieces==count:
+            return True
+        return False
+    
     def next_turn(self): # FUNC TO DECIDE NEXT PLAYER TURN
         self.next_player = 'white' if self.next_player == 'black' else 'black'
     
@@ -393,7 +421,7 @@ class chess_Board:
                 rect = (pos.col * SQSIZE, pos.row * SQSIZE, SQSIZE, SQSIZE)
                 
                 pygame.draw.rect(screen, color, rect)
-                
+
     def display_hovered(self, screen): # FUNC TO DISPLAY MOUSE LOCATION
         
         if self.hovered_sqr:
@@ -404,23 +432,6 @@ class chess_Board:
             
             pygame.draw.rect(screen, color, rect, width=4)
     
-    def check_for_mate(self, piece): # FUNC TO CHECK FOR CHECKMATE
-        
-        pieces,count = 0,0
-        
-        for row in range(ROWS):
-            for col in range(COLS):
-                if self.squares[row][col].has_enemy_piece(piece.color):
-                    enemy = self.squares[row][col].piece
-                    pieces+=1
-                    self.calc_moves(enemy, row, col, incheck=True)
-                    if len(enemy.moves)==0:
-                        count+=1
-                    
-        if pieces==count:
-            return True
-        return False
-
     def set_hover(self, row, col): # TO SET HOVER SQUARE
         self.hovered_sqr = self.squares[row][col]
 
@@ -432,3 +443,4 @@ class chess_Board:
         self.color_test += 1
         self.cur_color =  self.colors[0] if self.color_test % 2 == 0 else self.colors[1]
         self.display_bg(screen)
+    

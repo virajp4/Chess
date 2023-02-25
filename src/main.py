@@ -1,5 +1,6 @@
 import pygame
 import sys
+import time
 
 from const import *
 from chess_Pieces import *
@@ -8,7 +9,6 @@ from chess_Board import *
 from chess_Dragger import *
 
 # THIS FILE IS THE MAIN FILE WHICH RUNS THE PROGRAM
-## TO DO :- AUDIO, ICON CLARITY
 
 
 class Main:
@@ -23,6 +23,7 @@ class Main:
         
         game = chess_Board(self.screen)
         dragger = chess_Dragger()
+        game.start.play()
         
         while True:
             
@@ -96,30 +97,30 @@ class Main:
                         if move in dragging_piece.moves: # CHECK IF MOVE TO BE DONE IS PRESENT IN VALID MOVES
                             
                             game.move_piece(dragging_piece, move)
-                            
                             game.display_bg(self.screen)
                             game.display_last_move(self.screen)
                             game.display_pieces(self.screen)
-                        
+                            
                         dragger.undrag_piece(dragging_piece)
                         if game.last_moved_piece:
                             if game.check_for_mate(game.last_moved_piece):
-                                pygame.quit()
-                                sys.exit()
+                                game.end.play()
+                                pygame.display.update()
+                                time.sleep(5)
+                                game.reset()
                 
                 elif event.type == pygame.KEYDOWN: # WHEN KEY PRESS IS DONE
                     
-                    if event.key == pygame.K_LEFT:
-                        pass
-                    
-                    if event.key == pygame.K_t:
+                    if event.key == pygame.K_t: # WHEN T KEY IS PRESSED
                         game.change_theme(self.screen)
                     
-                    if event.key == pygame.K_r:
+                    if event.key == pygame.K_r: # WHEN R KEY IS PRESSED
                         game.reset()
                         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
+                        
                         game = chess_Board(self.screen)
                         dragger = chess_Dragger()
+                        game.start.play()
                 
                 elif event.type == pygame.QUIT: # EXIT GAME
                     pygame.quit()

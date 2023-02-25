@@ -1,4 +1,4 @@
-from const import *
+from chess_Const import *
 
 # THIS FILE CONTAINS THE CLASSES WHICH STORES EACH INDIVIDUAL SQUARE AND PIECE MOVES
 

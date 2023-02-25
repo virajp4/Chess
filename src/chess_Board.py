@@ -1,7 +1,7 @@
 import pygame
 import os
 
-from const import *
+from chess_Const import *
 from chess_Square import *
 from chess_Pieces import *
 from chess_Dragger import *

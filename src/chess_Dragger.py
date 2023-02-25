@@ -1,6 +1,6 @@
 import pygame
 
-from const import *
+from chess_Const import *
 from chess_Square import *
 from chess_Board import *
 

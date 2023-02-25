@@ -317,6 +317,7 @@ class chess_Board:
             self.custom_moves(piece, move.initial, move.final)
             if isinstance(piece, King) and abs(move.initial.col - move.final.col) == 2:
                 castle = True
+                self.next_turn()
             if castle:
                 self.castle.play()
             elif prev_piece:

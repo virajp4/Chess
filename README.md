@@ -2,6 +2,7 @@
  A PvP based Chess game, made with pygame.
 
 ## Instructions:
+- If pygame library is not installed, run `pip install pygame` to install the library.
 - Run `python src/chess_Main.py` in the main directory terminal to start the game.
 - Press 't' to change theme (green, brown)
 - Press 'r' to restart the game

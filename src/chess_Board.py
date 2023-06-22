@@ -99,7 +99,7 @@ class chess_Board:
                         piece.texture_rect = img.get_rect(center=img_center)
                         screen.blit(img, piece.texture_rect)
 
-    def calc_moves(self, piece, row, col, incheck=False): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
+    def calc_moves(self, piece, row, col, incheck=False, castling=False): #FUNC TO CALC VALID MOVES FOR CLICKED PIECE
         
         def create_moves(row,col,possible_move_row,possible_move_col,piece): # CREATE VALID MOVES FOR A PIECE
             
@@ -175,32 +175,36 @@ class chess_Board:
                     
                     if chess_Square.in_range(possible_move_row,possible_move_col) and self.squares[possible_move_row][possible_move_col].isempty_or_enemy(piece.color):
                         create_moves(row, col, possible_move_row, possible_move_col,piece)
+            if castling:      
+                if not piece.moved: # CASTLING KING MOVES
                     
-            if not piece.moved: # CASTLING KING MOVES
-                
-                # SHORT CASTLE
-                right_rook = self.squares[row][7].piece
-                if isinstance(right_rook, Rook):
-                    if not right_rook.moved:
-                        for c in range(5,7):
-                            if self.squares[row][c].has_piece():
-                                break
-                            if c == 5:
-                                piece.right_rook = right_rook
-                                create_moves(row,7,row,5,right_rook)
-                                create_moves(row,col,row,6,piece)
-                                
-                # LONG CASTLE
-                left_rook = self.squares[row][0].piece
-                if isinstance(left_rook, Rook):
-                    if not left_rook.moved:
-                        for c in range(1,4):
-                            if self.squares[row][c].has_piece():
-                                break
-                            if c == 3:
-                                piece.left_rook = left_rook
-                                create_moves(row,0,row,3,left_rook)
-                                create_moves(row,col,row,2,piece)
+                    # SHORT CASTLE
+                    right_rook = self.squares[row][7].piece
+                    if isinstance(right_rook, Rook):
+                        if not right_rook.moved:
+                            for c in range(5,7):
+                                if self.squares[row][c].has_piece():
+                                    break
+                                if self.gives_castling_check(piece,row,col,row,c):
+                                    break
+                                if c == 6:
+                                    piece.right_rook = right_rook
+                                    create_moves(row,7,row,5,right_rook)
+                                    create_moves(row,col,row,6,piece)
+                                    
+                    # LONG CASTLE
+                    left_rook = self.squares[row][0].piece
+                    if isinstance(left_rook, Rook):
+                        if not left_rook.moved:
+                            for c in range(1,4):
+                                if self.squares[row][c].has_piece():
+                                    break
+                                if self.gives_castling_check(piece,row,col,row,c):
+                                    break
+                                if c == 3:
+                                    piece.left_rook = left_rook
+                                    create_moves(row,0,row,3,left_rook)
+                                    create_moves(row,col,row,2,piece)
                                      
         def straightline_moves(increment): # STRAIGHT AND DIAG MOVES
             
@@ -388,6 +392,22 @@ class chess_Board:
         piece.clear_moves()            
         return False
 
+    def gives_castling_check(self, piece, initial_row, initial_col, final_row, final_col):
+        
+        self.squares[initial_row][initial_col].piece = None
+        self.squares[final_row][final_col].piece = piece
+            
+        for row in range(ROWS):
+            for col in range(COLS):
+                if self.squares[row][col].has_enemy_piece(piece.color):
+                    enemy = self.squares[row][col].piece
+                    self.calc_moves(enemy,row,col)
+                    if self.piece_gives_check(enemy):
+                        self.squares[final_row][final_col].piece = None
+                        self.squares[initial_row][initial_col].piece = piece
+                        return True
+        return False
+    
     def check_for_mate(self, piece): # FUNC TO CHECK FOR CHECKMATE
         
         pieces,count = 0,0

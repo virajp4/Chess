@@ -52,7 +52,10 @@ class Main:
                         if dragging_piece.color == game.next_player:
                         
                             # CALC VALID MOVES AND DRAG
-                            game.calc_moves(dragging_piece, clicked_row, clicked_col)
+                            if isinstance(dragging_piece,King):
+                                game.calc_moves(dragging_piece, clicked_row, clicked_col,castling=True)
+                            else:
+                                game.calc_moves(dragging_piece, clicked_row, clicked_col)
                             dragger.save_initial(event.pos)
                             dragger.drag_piece(dragging_piece)
                             
